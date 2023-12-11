@@ -53,12 +53,18 @@ makeTurn board player = if drawCheck board
                 then endGame brd $ case player of
                     PlayerX -> WinX
                     PlayerO -> WinO
-                else makeTurn brd $ case player of
-                    PlayerX -> PlayerO
-                    PlayerO -> PlayerX
+                else return ()
             Nothing -> do
                putStrLn "Can't move there"
                makeTurn board player
+
+game :: Board -> IO ()
+game board = helper board PlayerX where
+    helper board player = do
+        makeTurn board player
+        helper board $ case player of
+            PlayerX -> PlayerO
+            PlayerO -> PlayerX
 
 endGame :: Board -> EndGame -> IO ()
 endGame board end = do
@@ -68,4 +74,4 @@ endGame board end = do
 main :: IO ()
 main = do
     board <- getBoard
-    makeTurn board PlayerX
+    game board
