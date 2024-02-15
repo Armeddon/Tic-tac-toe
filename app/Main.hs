@@ -2,6 +2,7 @@ module Main where
 
 import Data.Maybe(isJust)
 import Text.Read(readMaybe)
+import System.Exit(exitSuccess)
 
 import Board
 
@@ -53,25 +54,20 @@ makeTurn board player = if drawCheck board
                 then endGame brd $ case player of
                     PlayerX -> WinX
                     PlayerO -> WinO
-                else return ()
+                else makeTurn brd $ case player of
+                    PlayerX -> PlayerO
+                    PlayerO -> PlayerX
             Nothing -> do
                putStrLn "Can't move there"
                makeTurn board player
-
-game :: Board -> IO ()
-game board = helper board PlayerX where
-    helper board player = do
-        makeTurn board player
-        helper board $ case player of
-            PlayerX -> PlayerO
-            PlayerO -> PlayerX
 
 endGame :: Board -> EndGame -> IO ()
 endGame board end = do
     printBoard board
     putStrLn $ show end
+    exitSuccess
 
 main :: IO ()
 main = do
     board <- getBoard
-    game board
+    makeTurn board PlayerX
