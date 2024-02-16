@@ -1,6 +1,6 @@
 module Main where
 
-import Data.Maybe(isJust)
+import Data.Maybe(isJust, fromJust)
 import Text.Read(readMaybe)
 import System.Exit(exitSuccess)
 
@@ -17,13 +17,17 @@ getTurn player = do
     putStrLn $ show player ++ ": take your turn!"
     input <- getLine
     let nums = split ' ' input
-    if head input == ' ' || last input == ' ' || length nums /= 2 then do
+    if length nums /= 2 || head input == ' ' || last input == ' ' then do
         putStrLn "Incorrect move format!"
         getTurn player
     else do
-        let x = read $ nums !! 0 :: Int
-        let y = read $ nums !! 1 :: Int
-        return $ newTurn player (x-1, y-1)
+        let x = readMaybe $ nums !! 0 :: Maybe Int
+        let y = readMaybe $ nums !! 1 :: Maybe Int
+        if isJust x && isJust y then
+            return $ newTurn player (fromJust x - 1, fromJust y - 1)
+        else do
+            putStrLn "Not a number!"
+            getTurn player
 
 printBoard :: Board -> IO ()
 printBoard brd = mapM_ (\line ->

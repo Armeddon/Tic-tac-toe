@@ -93,11 +93,16 @@ winCheck brd = case find (isJust) $
             _ -> Nothing
         _ -> Nothing
 
+inside :: Int -> Board -> Bool
+inside x brd = x >= 0 && x < size brd
+
 drawCheck :: Board -> Bool
 drawCheck brd = all id $ map (all (\tl -> tile tl /= TileEmpty)) $ tiles brd
 
 execTurn :: Board -> Turn -> Maybe Board
-execTurn brd trn = if getTile brd (x_turn trn, y_turn trn) == TileEmpty
+execTurn brd trn = if inside (x_turn trn) brd &&
+    inside (y_turn trn) brd &&
+    getTile brd (x_turn trn, y_turn trn) == TileEmpty
     then Just $ Board {
         tiles = (map . map) (\tile -> if x_tile tile == x_turn trn && y_tile tile == y_turn trn
             then Tile { x_tile = x_tile tile, y_tile = y_tile tile, tile = case player trn of
